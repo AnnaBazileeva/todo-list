@@ -15,8 +15,10 @@ function TodoForm({onAddTodo}) {
 
     return (
         <form onSubmit={handleAddTodo}>
-            <input type='text' name='title' placeholder='enter todo' ref={todoTitleInput} value={workingTodo}/>
-            <button type='submit'>Add Todo</button>
+            <input type='text' name='title' placeholder='enter todo'
+                   ref={todoTitleInput} value={workingTodo}
+                   onChange={(e)=> setWorkingTodo(e.target.value)}/>
+            <button type='submit' disabled={workingTodo===''}>Add Todo</button>
         </form>
     )
 }
