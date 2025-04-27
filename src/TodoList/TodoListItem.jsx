@@ -1,7 +1,7 @@
 import { useState } from "react";
 import TextInputWithLabel from "../shared/TextInputWithLabel.jsx";
 
-    function TodoListItem({ todo, onToggleCompleted }) {
+    function TodoListItem({ todo, onToggleCompleted, onUpdateTodo }) {
         const [isEditing, setIsEditing] = useState(false);
         const [workingTitle, setWorkingTitle] = useState(todo.title);
 
@@ -11,13 +11,26 @@ import TextInputWithLabel from "../shared/TextInputWithLabel.jsx";
         };
 
         const handleEdit = (event) => {
+            console.log("Editing todo:", event.target.value);
             setWorkingTitle(event.target.value);
+        };
+
+        const handleUpdate = (event) => {
+            event.preventDefault();
+
+            console.log("Updating todo:", workingTitle);
+            onUpdateTodo({ ...todo, title: workingTitle });
+            setIsEditing(false);
+        };
+
+        const handleToggle = () => {
+            onToggleCompleted(todo.id);
         };
 
         return (
             <>
                 {isEditing ? (
-                    <>
+                    <form onSubmit={handleUpdate}>
                         <TextInputWithLabel
                             elementId={`edit-${todo.id}`}
                             label="Edit Todo"
@@ -27,17 +40,20 @@ import TextInputWithLabel from "../shared/TextInputWithLabel.jsx";
                         <button type="button" onClick={handleCancel}>
                             Cancel
                         </button>
-                    </>
+                        <button type="submit" >
+                            Update
+                        </button>
+                    </form>
                 ) : (
                     <form>
                         <input
                             type="checkbox"
                             checked={todo.completed}
-                            onChange={() => onToggleCompleted(todo.id)}
+                            onChange={handleToggle}
                         />
                         <span onClick={() => setIsEditing(true)} style={{ cursor: "pointer" }}>
-            {todo.title}
-          </span>
+                          {todo.title}
+                        </span>
                     </form>
                 )}
             </>

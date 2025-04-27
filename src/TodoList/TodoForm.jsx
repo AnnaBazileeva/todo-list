@@ -7,7 +7,10 @@ function TodoForm({onAddTodo}) {
 
     const handleAddTodo = (event) => {
         event.preventDefault();
+        if (todoTitle.trim() === "") return;
+
       onAddTodo(todoTitle);
+      setTodoTitle("");
       todoTitleInput.current.focus()
     }
 
