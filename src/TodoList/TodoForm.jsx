@@ -1,18 +1,29 @@
-import {useRef} from "react";
+import {useRef, useState} from "react";
+import TextInputWithLabel from "../shared/TextInputWithLabel.jsx";
 
 function TodoForm({onAddTodo}) {
     const todoTitleInput =useRef('')
+    const [todoTitle, setTodoTitle] = useState('');
+
     const handleAddTodo = (event) => {
         event.preventDefault();
-      const title = event.target.title.value;
-      onAddTodo(title);
-      event.target.title.value = '';
+      onAddTodo(todoTitle);
       todoTitleInput.current.focus()
     }
 
+    const handleTitleChange = (event) => {
+        setTodoTitle(event.target.value);
+    };
+
     return (
         <form onSubmit={handleAddTodo}>
-            <input type='text' name='title' placeholder='enter todo' ref={todoTitleInput}/>
+            <TextInputWithLabel
+                elementId="todoTitle"
+                label="Todo"
+                ref={todoTitleInput}
+                value={todoTitle}
+                onChange={handleTitleChange}
+            />
             <button type='submit'>Add Todo</button>
         </form>
     )
