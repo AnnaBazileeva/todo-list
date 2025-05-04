@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TextInputWithLabel from "../shared/TextInputWithLabel.jsx";
 
-    function TodoListItem({ todo, onToggleCompleted, onUpdateTodo }) {
+    function TodoListItem({ todo, onUpdateTodo, onDeleteTodo }) {
         const [isEditing, setIsEditing] = useState(false);
         const [workingTitle, setWorkingTitle] = useState(todo.title);
+
+        useEffect(() => {
+            setWorkingTitle(todo?.title || '');
+        }, [todo]);
 
         const handleCancel = () => {
             setWorkingTitle(todo.title);
@@ -24,39 +28,49 @@ import TextInputWithLabel from "../shared/TextInputWithLabel.jsx";
         };
 
         const handleToggle = () => {
-            onToggleCompleted(todo.id);
+            onUpdateTodo({ ...todo, isCompleted: !todo.isCompleted });
         };
 
+        const handleDelete = (event) => {
+            event.preventDefault();
+
+            onDeleteTodo(todo.id);
+        };
         return (
-            <>
+            <div style={{ margin: "8px 0", padding: "8px", border: "1px solid #ccc" }}>
                 {isEditing ? (
-                    <form onSubmit={handleUpdate}>
+                    <form onSubmit={handleUpdate} style={{ display: "flex", gap: "8px" }}>
                         <TextInputWithLabel
                             elementId={`edit-${todo.id}`}
                             label="Edit Todo"
                             value={workingTitle}
                             onChange={handleEdit}
                         />
-                        <button type="button" onClick={handleCancel}>
-                            Cancel
-                        </button>
                         <button type="submit" >
                             Update
                         </button>
+                        <button type="button" onClick={handleCancel}>
+                            Cancel
+                        </button><button  type="button" onClick={handleDelete}>Delete</button>
                     </form>
                 ) : (
-                    <form>
+                    <>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <input
                             type="checkbox"
-                            checked={todo.completed}
+                            checked={todo.isCompleted}
                             onChange={handleToggle}
                         />
-                        <span onClick={() => setIsEditing(true)} style={{ cursor: "pointer" }}>
-                          {todo.title}
-                        </span>
-                    </form>
-                )}
-            </>
-        );
-    }
+                        <span>{todo.title}</span>
+                        <button onClick={() => setIsEditing(true)}>Edit</button>
+                        <button onClick={handleDelete}>Delete</button>
+                    </div>
+
+
+
+                    </>
+                )
+                }
+            </div>
+        )}
 export default TodoListItem;

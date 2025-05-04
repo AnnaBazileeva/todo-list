@@ -7,6 +7,7 @@ function App() {
 
     const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
     const token = `Bearer ${import.meta.env.VITE_PAT}`;
+    const [isSaving, setIsSaving] = useState(false);
     const [todoList, setTodoList] =useState([]);
     const [newTodoTitle, setNewTodoTitle] = useState("");
 
@@ -32,15 +33,11 @@ function App() {
 
                 const data = await resp.json();
 
-                const todos = data.records.map(record => {
-                    const todo = {
+                const todos = data.records.map(record => ({
                         id: record.id,
                         title: record.fields.title || "",
-                        completed: record.fields.isCompleted || false,
-                    };
-                    return todo;
-                });
-
+                        isCompleted: record.fields.isCompleted || false,
+                    }));
                 setTodoList(todos);
             } catch (error) {
                 setErrorMessage(error.message);
@@ -48,47 +45,157 @@ function App() {
                 setIsLoading(false);
             }
         };
-
         fetchTodos();
     }, []);
 
-    const addTodo = (title) => {
-            if (title.trim() === "") return;
+    const deleteTodo = async (todoId) => {
+        const options = {
+            method: 'DELETE',
+            headers: {
+                Authorization: token,
+            },
+        };
 
-        const newTodo = {
-            title,
-            id: Date.now(),
-            completed:false
+        try {
+            const deleteUrl = `${url}/${todoId}`;
+            const resp = await fetch(deleteUrl, options);
+            if (!resp.ok) {
+                throw new Error(`Error: ${resp.statusText}`);
+            }
+
+            setTodoList((prevTodos) => prevTodos.filter((todo) => todo.id !== todoId));
+        } catch (error) {
+            console.error(error);
+            setErrorMessage(error.message);
         }
-        setTodoList([...todoList, newTodo]);
-        setNewTodoTitle("");
-    }
+    };
+
+    const addTodo = async (newTodo) => {
+        const payload = {
+            records: [
+                {
+                    fields: {
+                        title: newTodo.title,
+                        isCompleted: newTodo.isCompleted,
+                    },
+                },
+            ],
+        };
+        const options = {
+            method: 'POST',
+            headers: {
+                Authorization: token,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        };
+
+        setIsSaving(true)
+
+        try {
+            const resp = await fetch(url, options);
+            if (!resp.ok) {
+                throw new Error(`Error: ${resp.statusText}`);
+            }
+
+            const { records } = await resp.json();
+
+            const savedTodo = {
+                id: records[0].id,
+                ...records[0].fields,
+            };
+
+            if (!records[0].fields.isCompleted) {
+                savedTodo.isCompleted = false;
+            }
+
+            setTodoList([...todoList, savedTodo]);
+            setNewTodoTitle("");
+        } catch (error) {
+            console.error(error);
+            setErrorMessage(error.message);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
 
     const handleToggleCompleted = (todoId) => {
         setTodoList((prevTodos) =>
             prevTodos.map((todo) =>
                 todo.id === todoId
-                    ? { ...todo, completed: !todo.completed }
+                    ? { ...todo, isCompleted: !todo.isCompleted }
                     : todo
             )
         );
     };
 
-    const handleUpdateTodo = (editedTodo) => {
-        const updatedTodos = todoList.map((todo) =>
-            todo.id === editedTodo.id
-                ? { ...editedTodo }
-                : todo
-        );
-        setTodoList(updatedTodos);
+    const updateTodo = async (editedTodo) => {
+        const originalTodo = todoList.find((todo) => todo.id === editedTodo.id);
+
+        const payload = {
+            records: [
+                {
+                    id: editedTodo.id,
+                    fields: {
+                        title: editedTodo.title,
+                        isCompleted: editedTodo.isCompleted,
+                    },
+                },
+            ],
+        };
+
+        const options = {
+            method: 'PATCH',
+            headers: {
+                Authorization: token,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        };
+
+        setIsSaving(true);
+
+        try {
+            const resp = await fetch(url, options);
+            if (!resp.ok) {
+                throw new Error(`Error: ${resp.statusText}`);
+            }
+
+            const { records } = await resp.json();
+
+            const updatedTodo = {
+                id: records[0].id,
+                ...records[0].fields,
+            };
+
+            if (!records[0].fields.isCompleted) {
+                updatedTodo.isCompleted = false;
+            }
+
+            const updatedTodos = todoList.map((todo) =>
+                todo.id === updatedTodo.id ? { ...updatedTodo } : todo
+            );
+            setTodoList(updatedTodos);
+        } catch (error) {
+            console.error(error);
+            setErrorMessage(`${error.message}. Reverting todo...`);
+
+            const revertedTodos = todoList.map((todo) =>
+                todo.id === originalTodo.id ? { ...originalTodo } : todo
+            );
+            setTodoList(revertedTodos);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
         <div>
             <h1>My Todos</h1>
-            <TodoList todoList={todoList} onToggleCompleted={handleToggleCompleted} onUpdateTodo={handleUpdateTodo} />
+            <TodoList todoList={todoList} onToggleCompleted={handleToggleCompleted} onUpdateTodo={updateTodo} onDeleteTodo={deleteTodo} isLoading={isLoading}/>
             <TodoForm onAddTodo={addTodo} newTodoTitle={newTodoTitle} setNewTodoTitle={setNewTodoTitle} />
-            {isLoading && <p>Loading...</p>}
+
             {errorMessage && <p>{errorMessage}</p>}
         </div>
     )
