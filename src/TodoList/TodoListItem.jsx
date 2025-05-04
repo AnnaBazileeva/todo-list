@@ -37,9 +37,9 @@ import TextInputWithLabel from "../shared/TextInputWithLabel.jsx";
             onDeleteTodo(todo.id);
         };
         return (
-            <div style={{ margin: "8px 0", padding: "8px", border: "1px solid #ccc" }}>
+            <div>
                 {isEditing ? (
-                    <form onSubmit={handleUpdate} style={{ display: "flex", gap: "8px" }}>
+                    <form onSubmit={handleUpdate}>
                         <TextInputWithLabel
                             elementId={`edit-${todo.id}`}
                             label="Edit Todo"
@@ -55,7 +55,7 @@ import TextInputWithLabel from "../shared/TextInputWithLabel.jsx";
                     </form>
                 ) : (
                     <>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div>
                         <input
                             type="checkbox"
                             checked={todo.isCompleted}
