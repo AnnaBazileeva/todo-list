@@ -14,9 +14,14 @@ function App() {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
+    const [sortField, setSortField] = useState('createdTime');
+    const [sortDirection, setSortDirection] = useState('desc')
+
     useEffect(() => {
         const fetchTodos = async () => {
             setIsLoading(true);
+            const fetchUrl = `${url}?sort[0][field]=${sortField}&sort[0][direction]=${sortDirection}`;
+
             const options = {
                 method: "GET",
                 headers: {
@@ -46,7 +51,7 @@ function App() {
             }
         };
         fetchTodos();
-    }, []);
+    }, [sortField, setSortDirection]);
 
     const deleteTodo = async (todoId) => {
         const options = {
