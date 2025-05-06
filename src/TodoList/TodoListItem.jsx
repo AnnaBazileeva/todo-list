@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TextInputWithLabel from "../shared/TextInputWithLabel.jsx";
 
-    function TodoListItem({ todo, onToggleCompleted, onUpdateTodo }) {
+    function TodoListItem({ todo, onUpdateTodo, onDeleteTodo }) {
         const [isEditing, setIsEditing] = useState(false);
         const [workingTitle, setWorkingTitle] = useState(todo.title);
+
+        useEffect(() => {
+            setWorkingTitle(todo?.title || '');
+        }, [todo]);
 
         const handleCancel = () => {
             setWorkingTitle(todo.title);
@@ -24,11 +28,16 @@ import TextInputWithLabel from "../shared/TextInputWithLabel.jsx";
         };
 
         const handleToggle = () => {
-            onToggleCompleted(todo.id);
+            onUpdateTodo({ ...todo, isCompleted: !todo.isCompleted });
         };
 
+        const handleDelete = (event) => {
+            event.preventDefault();
+
+            onDeleteTodo(todo.id);
+        };
         return (
-            <>
+            <div>
                 {isEditing ? (
                     <form onSubmit={handleUpdate}>
                         <TextInputWithLabel
@@ -37,26 +46,31 @@ import TextInputWithLabel from "../shared/TextInputWithLabel.jsx";
                             value={workingTitle}
                             onChange={handleEdit}
                         />
-                        <button type="button" onClick={handleCancel}>
-                            Cancel
-                        </button>
                         <button type="submit" >
                             Update
                         </button>
+                        <button type="button" onClick={handleCancel}>
+                            Cancel
+                        </button><button  type="button" onClick={handleDelete}>Delete</button>
                     </form>
                 ) : (
-                    <form>
+                    <>
+                    <div>
                         <input
                             type="checkbox"
-                            checked={todo.completed}
+                            checked={todo.isCompleted}
                             onChange={handleToggle}
                         />
-                        <span onClick={() => setIsEditing(true)} style={{ cursor: "pointer" }}>
-                          {todo.title}
-                        </span>
-                    </form>
-                )}
-            </>
-        );
-    }
+                        <span>{todo.title}</span>
+                        <button onClick={() => setIsEditing(true)}>Edit</button>
+                        <button onClick={handleDelete}>Delete</button>
+                    </div>
+
+
+
+                    </>
+                )
+                }
+            </div>
+        )}
 export default TodoListItem;
