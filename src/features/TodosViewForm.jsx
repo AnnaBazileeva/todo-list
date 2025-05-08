@@ -1,16 +1,41 @@
 
 
-function  TodosViewForm({sortDirection, setSortDirection, sortField, setSortField}) {
+function  TodosViewForm({sortDirection, setSortDirection, sortField, setSortField, queryString, setQueryString}) {
+
+    const handleSortChange = (e) => {
+        setSortField(e.target.value);
+    };
+
+    const handleDirectionChange = (e) => {
+        setSortDirection(e.target.value);
+    };
+
+    const handleSearchChange = (e) => {
+        setQueryString(e.target.value);
+    };
+
+    const clearSearch = () => {
+        setQueryString('');
+    };
+
     const preventRefresh = (e) => {
         e.preventDefault();
     };
 
 
     return (
-   <div>
-           <form onSubmit={preventRefresh}>
+   <form onSubmit={preventRefresh}>
+       <div>
+           <label htmlFor="todosSearch">Search todos</label>
+           <input type="text"
+                  value={queryString}
+                  onChange={handleSearchChange}
+           />
+           <button type='button' onClick={clearSearch}>Clear</button>
+       </div>
+       <div>
                <label htmlFor="sortSelect">Sort by</label>
-                 <select id="sortSelect" value={sortField} onChange={(e) => setSortField(e.target.value)}>
+                 <select id="sortSelect" value={sortField} onChange={handleSortChange}>
                    <option value="title">Title</option>
                    <option value="createdTime">Time added</option>
                  </select>
@@ -18,13 +43,14 @@ function  TodosViewForm({sortDirection, setSortDirection, sortField, setSortFiel
                <select
                    id="directionSelect"
                    value={sortDirection}
-                   onChange={(e) => setSortDirection(e.target.value)}
+                   onChange={handleDirectionChange}
                >
                    <option value="asc">Ascending</option>
                    <option value="desc">Descending</option>
-               </select>
-       </form>
-   </div>
+              </select>
+       </div>
+</form>
+
     )
 }
 export default TodosViewForm
