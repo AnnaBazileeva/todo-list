@@ -1,7 +1,15 @@
 import './App.css'
 import {useState, useEffect} from "react";
 import TodoForm from "./TodoList/TodoForm.jsx";
-import TodoList from './TodoList/TodoList.jsx'
+import TodoList from './TodoList/TodoList.jsx';
+import TodosViewForm from "./features/TodosViewForm.jsx";
+
+function encodeUrl({ sortField, sortDirection }) {
+    let sortQuery = `sort[0][field]=${sortField}&sort[0][direction]=${sortDirection}`;
+    const baseId = import.meta.env.VITE_BASE_ID;
+    const tableName = import.meta.env.VITE_TABLE_NAME;
+    return `https://api.airtable.com/v0/${baseId}/${tableName}?${sortQuery}`;
+}
 
 function App() {
 
@@ -20,7 +28,7 @@ function App() {
     useEffect(() => {
         const fetchTodos = async () => {
             setIsLoading(true);
-            const fetchUrl = `${url}?sort[0][field]=${sortField}&sort[0][direction]=${sortDirection}`;
+            const fetchUrl = encodeUrl({ sortField, sortDirection });
 
             const options = {
                 method: "GET",
@@ -30,7 +38,7 @@ function App() {
             };
 
             try {
-                const resp = await fetch(url, options);
+                const resp = await fetch(fetchUrl, options);
 
                 if (!resp.ok) {
                     throw new Error(`Error: ${resp.statusText}`);
@@ -51,7 +59,7 @@ function App() {
             }
         };
         fetchTodos();
-    }, [sortField, setSortDirection]);
+    }, [sortField, sortDirection]);
 
     const deleteTodo = async (todoId) => {
         const options = {
@@ -200,7 +208,7 @@ function App() {
             <h1>My Todos</h1>
             <TodoList todoList={todoList} onToggleCompleted={handleToggleCompleted} onUpdateTodo={updateTodo} onDeleteTodo={deleteTodo} isLoading={isLoading}/>
             <TodoForm onAddTodo={addTodo} newTodoTitle={newTodoTitle} setNewTodoTitle={setNewTodoTitle} />
-
+            <TodosViewForm />
             {errorMessage && <p>{errorMessage}</p>}
         </div>
     )
