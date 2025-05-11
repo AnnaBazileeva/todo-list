@@ -1,10 +1,24 @@
 import './App.css'
 import {useState, useEffect} from "react";
+
 import TodoForm from "./TodoList/TodoForm.jsx";
-import TodoList from './TodoList/TodoList.jsx'
+import TodoList from './TodoList/TodoList.jsx';
+import TodosViewForm from "./features/TodosViewForm.jsx";
+
+function encodeUrl({ sortField, sortDirection, queryString }) {
+    let sortQuery = `sort[0][field]=${sortField}&sort[0][direction]=${sortDirection}`;
+    let searchQuery = '';
+    if (queryString) {
+        searchQuery = `&filterByFormula=SEARCH("${queryString}",+title)`;
+    }
+
+    const baseId = import.meta.env.VITE_BASE_ID;
+    const tableName = import.meta.env.VITE_TABLE_NAME;
+    return `https://api.airtable.com/v0/${baseId}/${tableName}?${sortQuery}${searchQuery}`;
+}
 
 function App() {
-
+    const [queryString, setQueryString] = useState('')
     const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
     const token = `Bearer ${import.meta.env.VITE_PAT}`;
     const [isSaving, setIsSaving] = useState(false);
@@ -14,9 +28,14 @@ function App() {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
+    const [sortField, setSortField] = useState('createdTime');
+    const [sortDirection, setSortDirection] = useState('desc')
+
     useEffect(() => {
         const fetchTodos = async () => {
             setIsLoading(true);
+            const fetchUrl = encodeUrl({ sortField, sortDirection, queryString });
+
             const options = {
                 method: "GET",
                 headers: {
@@ -25,7 +44,7 @@ function App() {
             };
 
             try {
-                const resp = await fetch(url, options);
+                const resp = await fetch(fetchUrl, options);
 
                 if (!resp.ok) {
                     throw new Error(`Error: ${resp.statusText}`);
@@ -46,7 +65,7 @@ function App() {
             }
         };
         fetchTodos();
-    }, []);
+    }, [sortField, sortDirection, queryString]);
 
     const deleteTodo = async (todoId) => {
         const options = {
@@ -195,7 +214,14 @@ function App() {
             <h1>My Todos</h1>
             <TodoList todoList={todoList} onToggleCompleted={handleToggleCompleted} onUpdateTodo={updateTodo} onDeleteTodo={deleteTodo} isLoading={isLoading}/>
             <TodoForm onAddTodo={addTodo} newTodoTitle={newTodoTitle} setNewTodoTitle={setNewTodoTitle} />
-
+            <TodosViewForm
+                sortField={sortField}
+                setSortField={setSortField}
+                sortDirection={sortDirection}
+                setSortDirection={setSortDirection}
+                queryString={queryString}
+                setQueryString={setQueryString}
+            />
             {errorMessage && <p>{errorMessage}</p>}
         </div>
     )
