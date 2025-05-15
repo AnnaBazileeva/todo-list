@@ -1,29 +1,31 @@
 import './App.css'
-import {useState, useEffect} from "react";
+import {useState, useEffect, useCallback} from "react";
 
 import TodoForm from "./TodoList/TodoForm.jsx";
 import TodoList from './TodoList/TodoList.jsx';
 import TodosViewForm from "./features/TodosViewForm.jsx";
 
-function encodeUrl({ sortField, sortDirection, queryString }) {
-    let sortQuery = `sort[0][field]=${sortField}&sort[0][direction]=${sortDirection}`;
-    let searchQuery = '';
-    if (queryString) {
-        searchQuery = `&filterByFormula=SEARCH("${queryString}",+title)`;
-    }
+function useDebounce(value, delay = 500) {
+    const [debouncedValue, setDebouncedValue] = useState(value);
 
-    const baseId = import.meta.env.VITE_BASE_ID;
-    const tableName = import.meta.env.VITE_TABLE_NAME;
-    return `https://api.airtable.com/v0/${baseId}/${tableName}?${sortQuery}${searchQuery}`;
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => clearTimeout(handler);
+    }, [value, delay]);
+
+    return debouncedValue;
 }
 
 function App() {
-    const [queryString, setQueryString] = useState('')
     const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
     const token = `Bearer ${import.meta.env.VITE_PAT}`;
     const [isSaving, setIsSaving] = useState(false);
     const [todoList, setTodoList] =useState([]);
     const [newTodoTitle, setNewTodoTitle] = useState("");
+
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
@@ -31,10 +33,24 @@ function App() {
     const [sortField, setSortField] = useState('createdTime');
     const [sortDirection, setSortDirection] = useState('desc')
 
+
+    const [queryString, setQueryString] = useState('');
+    const debouncedQueryString = useDebounce(queryString, 500);
+
+    const encodeUrl = useCallback(() => {
+        const baseId = import.meta.env.VITE_BASE_ID;
+        const tableName = import.meta.env.VITE_TABLE_NAME;
+        let sortQuery = `sort[0][field]=${sortField}&sort[0][direction]=${sortDirection}`;
+        let searchQuery = '';
+        if (debouncedQueryString) {
+            searchQuery = `&filterByFormula=SEARCH("${debouncedQueryString}",+title)`;
+        } return `https://api.airtable.com/v0/${baseId}/${tableName}?${sortQuery}${searchQuery}`
+        },[ sortField, sortDirection, debouncedQueryString ])
+
     useEffect(() => {
         const fetchTodos = async () => {
             setIsLoading(true);
-            const fetchUrl = encodeUrl({ sortField, sortDirection, queryString });
+            const fetchUrl = encodeUrl();
 
             const options = {
                 method: "GET",
@@ -65,7 +81,7 @@ function App() {
             }
         };
         fetchTodos();
-    }, [sortField, sortDirection, queryString]);
+    }, [encodeUrl]);
 
     const deleteTodo = async (todoId) => {
         const options = {
