@@ -13,14 +13,8 @@ function TodoListView({ queryString, setQueryString, sortField, setSortField, so
 
     const handleClear = () => {
         setLocalQueryString('');
-        setLocalQueryString('');
 }
-    const handleChange = (e) => {
-        setLocalQueryString(e.target.value);
-        setQueryString(e.target.value);
-    };
-
-    return (
+return (
         <div>
             <div>
                 <input
