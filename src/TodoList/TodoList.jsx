@@ -11,7 +11,7 @@ function TodoList({todoList, onToggleCompleted,onUpdateTodo,onDeleteTodo, isLoad
     }
 
     return (
-        <ul>
+        <div className="todo-list">
         {todoList.map((todo) => (
                     <TodoListItem
                         key={todo.id}
@@ -22,7 +22,7 @@ function TodoList({todoList, onToggleCompleted,onUpdateTodo,onDeleteTodo, isLoad
                     />
 
             ))}
-        </ul>
+        </div>
     )
 }
 
