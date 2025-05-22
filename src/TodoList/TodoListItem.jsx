@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import styled from 'styled-components'
 import TextInputWithLabel from "../shared/TextInputWithLabel.jsx";
+import checkedIcon from '../assets/icons8-checkbox.png';
+import uncheckedIcon from '../assets/icons8-uncheckbox.png'
 
 
 const StyledForm = styled.form`
@@ -20,11 +22,20 @@ const StyledItemWrapper = styled.div`
   gap: 0.5rem;
   margin-bottom: 1rem;`
 
-const StyledCheckbox = styled.input`
-  margin-right: 0.5rem;`
-
 const StyledTitle = styled.span`
   flex: 1;`
+
+const StyledIconButton = styled.button`
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+
+  img {
+    width: 20px;
+    height: 20px;
+  }
+`;
 
     function TodoListItem({ todo, onUpdateTodo, onDeleteTodo }) {
         const [isEditing, setIsEditing] = useState(false);
@@ -81,11 +92,9 @@ const StyledTitle = styled.span`
                     </StyledForm>
                 ) : (
                     <StyledItemWrapper>
-                        <StyledCheckbox
-                            type="checkbox"
-                            checked={todo.isCompleted}
-                            onChange={handleToggle}
-                        />
+                        <StyledIconButton onClick={handleToggle}>
+                            <img src={todo.isCompleted ? checkedIcon : uncheckedIcon} alt="Toggle Complete" />
+                        </StyledIconButton>
                         <StyledTitle>{todo.title}</StyledTitle>
                         <StyledButton onClick={() => setIsEditing(true)}>Edit</StyledButton>
                         <StyledButton onClick={handleDelete}>Delete</StyledButton>

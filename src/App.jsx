@@ -4,6 +4,8 @@ import {useState, useEffect, useCallback} from "react";
 import TodoForm from "./TodoList/TodoForm.jsx";
 import TodoList from './TodoList/TodoList.jsx';
 import TodosViewForm from "./features/TodosViewForm.jsx";
+import errorIcon from './assets/error-icon.png';
+import  logo from './assets/note_13650723.png'
 
 function useDebounce(value, delay = 500) {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -227,7 +229,8 @@ function App() {
 
     return (
         <div className={styles.container}>
-        <header>
+        <header className={styles.header}>
+            <img src={logo} alt="Logo" className={styles.logo} />
             <h1>My Todos</h1>
         </header>
         <main>
@@ -241,7 +244,11 @@ function App() {
                 queryString={queryString}
                 setQueryString={setQueryString}
             />
-            {errorMessage && <p className={styles.error}>{errorMessage}</p>}
+            {errorMessage && (<p className={styles.error}>
+                <img src={errorIcon} alt="Error" className={styles.errorIcon}/>
+                <span>{errorMessage}</span>
+            </p>
+            )}
         </main>
         </div>
     )
