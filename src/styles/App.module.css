@@ -4,7 +4,7 @@ body,html {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    background-color: cornsilk;
+    background-color: azure;
     font-family: Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -20,9 +20,9 @@ body,html {
     max-width: 800px;
     width: 100%;
     padding: 20px;
-    background-color: #fff8e1;
+    background-color: aliceblue;
     border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     margin-top: 40px;
 }
 
@@ -57,7 +57,7 @@ button:hover {
 
 label {
     font-size: 1.25rem;
-    margin-right: 5px;
+    margin: 0 15px;
 }
 
 .todo-list {
