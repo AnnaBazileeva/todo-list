@@ -1,4 +1,4 @@
-import './App.css'
+import styles from './styles/App.module.css'
 import {useState, useEffect, useCallback} from "react";
 
 import TodoForm from "./TodoList/TodoForm.jsx";
@@ -226,8 +226,11 @@ function App() {
     };
 
     return (
-        <div>
+        <div className={styles.container}>
+        <header>
             <h1>My Todos</h1>
+        </header>
+        <main>
             <TodoList todoList={todoList} onToggleCompleted={handleToggleCompleted} onUpdateTodo={updateTodo} onDeleteTodo={deleteTodo} isLoading={isLoading}/>
             <TodoForm onAddTodo={addTodo} newTodoTitle={newTodoTitle} setNewTodoTitle={setNewTodoTitle} />
             <TodosViewForm
@@ -238,9 +241,9 @@ function App() {
                 queryString={queryString}
                 setQueryString={setQueryString}
             />
-            {errorMessage && <p>{errorMessage}</p>}
+            {errorMessage && <p className={styles.error}>{errorMessage}</p>}
+        </main>
         </div>
     )
 }
-
 export default App

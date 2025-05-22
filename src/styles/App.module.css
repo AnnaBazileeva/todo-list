@@ -16,11 +16,22 @@ body,html {
     box-sizing: border-box;
 }
 
-h1 {
+.container {
+    max-width: 800px;
+    width: 100%;
+    padding: 20px;
+    background-color: #fff8e1;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 40px;
+}
+
+header h1 {
     font-family: 'Georgia', serif;
     font-size: 2.5rem;
     margin-bottom: 1rem;
     color: #333;
+    text-align: center;
 }
 
 p {
@@ -57,4 +68,11 @@ label {
 
 form, div {
     margin-top: 10px;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+    margin-top: 1rem;
+    border: 2px crimson;
 }
