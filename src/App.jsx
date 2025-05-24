@@ -1,5 +1,10 @@
 import styles from './styles/App.module.css'
 import {useState, useEffect, useCallback} from "react";
+import { useReducer } from 'react';
+import { reducer, initialState, actions } from './reducers';
+
+const [state, dispatch] = useReducer(reducer, initialState);
+
 
 import TodoForm from "./TodoList/TodoForm.jsx";
 import TodoList from './TodoList/TodoList.jsx';
