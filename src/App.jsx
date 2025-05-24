@@ -207,12 +207,6 @@ function App() {
 
             const { records } = await resp.json();
 
-            dispatch({
-                type: todoActions.updateTodo,
-                payload: {
-                    todo: editedTodo,
-                },
-            });
         } catch (error) {
             dispatch({
                 type: todoActions.setLoadError,
@@ -224,8 +218,6 @@ function App() {
                     original: originalTodo,
                 },
             });
-        } finally {
-            dispatch({ type: todoActions.endRequest });
         }
     };
 
