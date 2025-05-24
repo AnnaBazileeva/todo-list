@@ -30,7 +30,7 @@ function App() {
     const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
     const token = `Bearer ${import.meta.env.VITE_PAT}`;
 
-    const [todoState, dispatch] = useReducer(todosReducer, initialTodosState);
+    const [todoListState, dispatch] = useReducer(todosReducer, initialTodosState);
 
     const [sortField, setSortField] = useState('createdTime');
     const [sortDirection, setSortDirection] = useState('desc');
@@ -167,7 +167,7 @@ function App() {
             },
         });
 
-        const todo = todoState.todoList.find(t => t.id === todoId);
+        const todo = todoListState.todoList.find(t => t.id === todoId);
         if (todo) {
             updateTodo({ ...todo, isCompleted: !todo.isCompleted });
         }
@@ -176,7 +176,7 @@ function App() {
     const updateTodo = async (editedTodo) => {
         dispatch({ type: todoActions.startRequest });
 
-        const originalTodo = todoState.todoList.find(t => t.id === editedTodo.id);
+        const originalTodo = todoListState.todoList.find(t => t.id === editedTodo.id);
 
         const payload = {
             records: [
@@ -228,7 +228,7 @@ function App() {
             <h1>My Todos</h1>
         </header>
         <main>
-            <TodoList todoList={todoState.todoList} onToggleCompleted={handleToggleCompleted} onUpdateTodo={updateTodo} onDeleteTodo={deleteTodo} isLoading={todoState.isLoading}/>
+            <TodoList todoList={todoListState.todoList} onToggleCompleted={handleToggleCompleted} onUpdateTodo={updateTodo} onDeleteTodo={deleteTodo} isLoading={todoListState.isLoading}/>
             <TodoForm onAddTodo={addTodo} newTodoTitle={newTodoTitle} setNewTodoTitle={(setNewTodoTitle)} />
             <TodosViewForm
                 sortField={sortField}
@@ -238,10 +238,13 @@ function App() {
                 queryString={queryString}
                 setQueryString={setQueryString}
             />
-            {todoState.errorMessage && (<p className={styles.error}>
+            {todoListState.errorMessage && (<div className={styles.error}>
                 <img src={errorIcon} alt="Error" className={styles.errorIcon}/>
-                <span>{todoState.errorMessage}</span>
-            </p>
+                <span>{todoListState.errorMessage}</span>
+                    <button onClick={() => dispatch({ type: todoActions.clearError })}>
+                        ✖
+                    </button>
+            </div>
             )}
         </main>
         </div>
