@@ -13,7 +13,7 @@ import errorIcon from './assets/error-icon.png';
 import  logo from './assets/note_13650723.png'
 
 function useDebounce(value, delay = 500) {
-    const [debouncedValue, setDebouncedValue] = useReducer(() => value, value);
+    const [debouncedValue, setDebouncedValue] = useState(value);
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -32,23 +32,18 @@ function App() {
 
     const [todoListState, dispatch] = useReducer(todosReducer, initialTodosState);
 
-    const [sortField, setSortField] = useState('createdTime');
-    const [sortDirection, setSortDirection] = useState('desc');
-
-
-    const [queryString, setQueryString] = useState('');
-    const debouncedQueryString = useDebounce(queryString, 500);
+    const debouncedQueryString = useDebounce(todoListState.queryString, 500);
     const [newTodoTitle, setNewTodoTitle] = useState('');
 
     const encodeUrl = useCallback(() => {
         const baseId = import.meta.env.VITE_BASE_ID;
         const tableName = import.meta.env.VITE_TABLE_NAME;
-        let sortQuery = `sort[0][field]=${sortField}&sort[0][direction]=${sortDirection}`;
+        let sortQuery = `sort[0][field]=${todoListState.sortField}&sort[0][direction]=${todoListState.sortDirection}`;
         let searchQuery = '';
         if (debouncedQueryString) {
             searchQuery = `&filterByFormula=SEARCH("${debouncedQueryString}",+title)`;
         } return `https://api.airtable.com/v0/${baseId}/${tableName}?${sortQuery}${searchQuery}`
-        },[ sortField, sortDirection, debouncedQueryString ])
+        },[ todoListState.sortField, todoListState.sortDirection, debouncedQueryString ])
 
     useEffect(() => {
         const fetchTodos = async () => {
@@ -160,13 +155,6 @@ function App() {
     };
 
     const handleToggleCompleted = (todoId) => {
-        dispatch({
-            type: todoActions.completeTodo,
-            payload: {
-                id: todoId,
-            },
-        });
-
         const todo = todoListState.todoList.find(t => t.id === todoId);
         if (todo) {
             updateTodo({ ...todo, isCompleted: !todo.isCompleted });
@@ -206,7 +194,16 @@ function App() {
             }
 
             const { records } = await resp.json();
-
+            dispatch({
+                type: todoActions.updateTodo,
+                payload: {
+                    todo: {
+                        id: records[0].id,
+                        title: records[0].fields.title,
+                        isCompleted: records[0].fields.isCompleted ?? false,
+                    },
+                },
+            });
         } catch (error) {
             dispatch({
                 type: todoActions.setLoadError,
@@ -218,6 +215,8 @@ function App() {
                     original: originalTodo,
                 },
             });
+        } finally {
+            dispatch({ type: todoActions.endRequest });
         }
     };
 
@@ -231,12 +230,12 @@ function App() {
             <TodoList todoList={todoListState.todoList} onToggleCompleted={handleToggleCompleted} onUpdateTodo={updateTodo} onDeleteTodo={deleteTodo} isLoading={todoListState.isLoading}/>
             <TodoForm onAddTodo={addTodo} newTodoTitle={newTodoTitle} setNewTodoTitle={(setNewTodoTitle)} />
             <TodosViewForm
-                sortField={sortField}
-                setSortField={setSortField}
-                sortDirection={sortDirection}
-                setSortDirection={setSortDirection}
-                queryString={queryString}
-                setQueryString={setQueryString}
+                sortField={todoListState.sortField}
+                setSortField={(value) => dispatch({ type: todoActions.setSortField, payload: value })}
+                sortDirection={todoListState.sortDirection}
+                setSortDirection={(value) => dispatch({ type: todoActions.setSortDirection, payload: value })}
+                queryString={todoListState.queryString}
+                setQueryString={(value) => dispatch({ type: todoActions.setQueryString, payload: value })}
             />
             {todoListState.errorMessage && (<div className={styles.error}>
                 <img src={errorIcon} alt="Error" className={styles.errorIcon}/>

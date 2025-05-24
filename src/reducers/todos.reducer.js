@@ -10,6 +10,9 @@ export const actions = {
     completeTodo: 'completeTodo',
     revertTodo: 'revertTodo',
     deleteTodo: 'deleteTodo',
+    setSortField: 'setSortField',
+    setSortDirection: 'setSortDirection',
+    setQueryString: 'setQueryString'
 };
 
 export const initialState = {
@@ -105,9 +108,20 @@ export const reducer = (state = initialState, action) => {
                 ...state,
                 todoList: state.todoList.filter(todo => todo.id !== action.payload),
             };
+        case actions.setSortField:
+            return {
+                ...state, sortField: action.payload
+            };
+        case actions.setSortDirection:
+            return  {
+                ...state, sortDirection: action.payload
+            };
+        case actions.setQueryString:
+            return  {
+                ...state, queryString: action.payload
+            }
 
-
-        default:
+            default:
             return state;
     }
 };
