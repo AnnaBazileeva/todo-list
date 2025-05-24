@@ -8,7 +8,8 @@ export const actions = {
     updateTodo: 'updateTodo',
     clearError: 'clearError',
     completeTodo: 'completeTodo',
-    revertTodo: 'revertTodo'
+    revertTodo: 'revertTodo',
+    deleteTodo: 'deleteTodo',
 };
 
 export const initialState = {
@@ -45,7 +46,7 @@ export const reducer = (state = initialState, action) => {
             return {
                 ...state,
                 isLoading: false,
-                errorMessage: action.error.message,
+                errorMessage: action.error?.message || 'Unknown error'
             };
         case actions.startRequest:
             return {
@@ -55,7 +56,7 @@ export const reducer = (state = initialState, action) => {
         case actions.addTodo:
             const savedTodo = {
                 ...action.payload.todo,
-                isCompleted: action.payload.todo.isCompleted ?? false,
+                isCompleted: action.payload.todo?.isCompleted ?? false,
             };
 
             return {
@@ -99,6 +100,12 @@ export const reducer = (state = initialState, action) => {
                 ...state,
                 errorMessage: '',
             };
+        case actions.deleteTodo:
+            return {
+                ...state,
+                todoList: state.todoList.filter(todo => todo.id !== action.payload),
+            };
+
 
         default:
             return state;
