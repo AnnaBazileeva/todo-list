@@ -4,7 +4,8 @@ import TodoList from "./TodoList";
 import TodosViewForm from "./TodosViewForm";
 import styles from "../styles/App.module.css";
 import errorIcon from "../assets/error-icon.png";
-import {useSearchParams} from "react-router-dom";
+import {useSearchParams, useNavigate} from "react-router-dom";
+import {useEffect} from "react";
 
 const TodosPage = ({
                        todoListState,
@@ -30,12 +31,6 @@ const TodosPage = ({
     const indexOfFirstTodo = (currentPage - 1) * itemsPerPage;
     const currentTodos = filteredTodoList.slice(indexOfFirstTodo, indexOfFirstTodo + itemsPerPage);
 
-    const goToPage = (page) => {
-        if (page < 1 || page > totalPages) return;
-        searchParams.set('page', page);
-        setSearchParams(searchParams);
-    };
-
     const handlePreviousPage = () => {
         const prevPage = Math.max(currentPage - 1, 1);
         searchParams.set('page', prevPage);
@@ -49,6 +44,19 @@ const TodosPage = ({
     };
 
     if (!todoListState) return null;
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const isInvalidPage =
+            Number.isNaN(currentPage) ||
+            currentPage < 1 ||
+            currentPage > totalPages;
+
+        if (isInvalidPage && totalPages > 0) {
+            navigate("/");
+        }
+    }, [currentPage, totalPages, navigate]);
 
     return (
         <>
