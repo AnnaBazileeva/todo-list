@@ -6,11 +6,9 @@ import {
     initialState as initialTodosState,
 } from './reducers/todos.reducer.js'
 
-import TodoForm from "./TodoList/TodoForm.jsx";
-import TodoList from './TodoList/TodoList.jsx';
-import TodosViewForm from "./features/TodosViewForm.jsx";
-import errorIcon from './assets/error-icon.png';
+import TodosPage from './pages/TodosPage'
 import  logo from './assets/note_13650723.png'
+import Header from "./shared/Header.jsx";
 
 function useDebounce(value, delay = 500) {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -223,28 +221,22 @@ function App() {
     return (
         <div className={styles.container}>
         <header className={styles.header}>
-            <img src={logo} alt="Logo" className={styles.logo} />
-            <h1>My Todos</h1>
+            <Header title="My Todos" />
         </header>
         <main>
-            <TodoList todoList={todoListState.todoList} onToggleCompleted={handleToggleCompleted} onUpdateTodo={updateTodo} onDeleteTodo={deleteTodo} isLoading={todoListState.isLoading}/>
-            <TodoForm onAddTodo={addTodo} newTodoTitle={newTodoTitle} setNewTodoTitle={(setNewTodoTitle)} />
-            <TodosViewForm
-                sortField={todoListState.sortField}
+            <TodosPage
+                todoListState={todoListState}
+                onToggleCompleted={handleToggleCompleted}
+                onUpdateTodo={updateTodo}
+                onDeleteTodo={deleteTodo}
+                onAddTodo={addTodo}
+                newTodoTitle={newTodoTitle}
+                setNewTodoTitle={setNewTodoTitle}
                 setSortField={(value) => dispatch({ type: todoActions.setSortField, payload: value })}
-                sortDirection={todoListState.sortDirection}
                 setSortDirection={(value) => dispatch({ type: todoActions.setSortDirection, payload: value })}
-                queryString={todoListState.queryString}
                 setQueryString={(value) => dispatch({ type: todoActions.setQueryString, payload: value })}
+                clearError={() => dispatch({ type: todoActions.clearError })}
             />
-            {todoListState.errorMessage && (<div className={styles.error}>
-                <img src={errorIcon} alt="Error" className={styles.errorIcon}/>
-                <span>{todoListState.errorMessage}</span>
-                    <button onClick={() => dispatch({ type: todoActions.clearError })}>
-                        ✖
-                    </button>
-            </div>
-            )}
         </main>
         </div>
     )
