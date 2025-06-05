@@ -1,4 +1,4 @@
-import TodoListItem from './TodoListItem.jsx'
+import TodoListItem from '../TodoList/TodoListItem.jsx'
 function TodoList({todoList, onToggleCompleted,onUpdateTodo,onDeleteTodo, isLoading}) {
 
 
