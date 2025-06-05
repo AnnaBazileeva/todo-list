@@ -4,6 +4,7 @@ import TodoList from "./TodoList";
 import TodosViewForm from "./TodosViewForm";
 import styles from "../styles/App.module.css";
 import errorIcon from "../assets/error-icon.png";
+import {useSearchParams} from "react-router-dom";
 
 const TodosPage = ({
                        todoListState,
@@ -18,17 +19,51 @@ const TodosPage = ({
                        setQueryString,
                        clearError,
                    }) => {
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const itemsPerPage = 15;
+    const currentPage = parseInt(searchParams.get('page') || '1', 10);
+
+    const filteredTodoList = todoListState.todoList;
+
+    const totalPages = Math.ceil(filteredTodoList.length / itemsPerPage);
+    const indexOfFirstTodo = (currentPage - 1) * itemsPerPage;
+    const currentTodos = filteredTodoList.slice(indexOfFirstTodo, indexOfFirstTodo + itemsPerPage);
+
+    const goToPage = (page) => {
+        if (page < 1 || page > totalPages) return;
+        searchParams.set('page', page);
+        setSearchParams(searchParams);
+    };
+
+    const handlePreviousPage = () => {
+        const prevPage = Math.max(currentPage - 1, 1);
+        searchParams.set('page', prevPage);
+        setSearchParams(searchParams);
+    };
+
+    const handleNextPage = () => {
+        const nextPage = Math.min(currentPage + 1, totalPages);
+        searchParams.set('page', nextPage);
+        setSearchParams(searchParams);
+    };
+
     if (!todoListState) return null;
 
     return (
         <>
-            <TodoList todoList={todoListState.todoList} onToggleCompleted={onToggleCompleted}
+            <TodoList todoList={currentTodos} onToggleCompleted={onToggleCompleted}
                       onUpdateTodo={onUpdateTodo} onDeleteTodo={onDeleteTodo} isLoading={todoListState.isLoading}/>
+            <div className={styles.paginationControls}>
+            <button onClick={handlePreviousPage} disabled={currentPage === 1}>Previous</button>
+            <span>Page {currentPage} of {totalPages || 1}</span>
+            <button onClick={handleNextPage} disabled={currentPage === totalPages || totalPages === 0}>Next</button>
+        </div>
             <TodoForm onAddTodo={onAddTodo} newTodoTitle={newTodoTitle} setNewTodoTitle={setNewTodoTitle}/>
             <TodosViewForm
                 setSortField={setSortField}
-            setSortDirection={setSortDirection}
-            setQueryString={setQueryString}
+                setSortDirection={setSortDirection}
+                setQueryString={setQueryString}
             />
             {todoListState.errorMessage && (<div className={styles.error}>
                     <img src={errorIcon} alt="Error" className={styles.errorIcon}/>
