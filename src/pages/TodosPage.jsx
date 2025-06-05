@@ -7,10 +7,10 @@ import errorIcon from "../assets/error-icon.png";
 
 const TodosPage = ({
                        todoListState,
-                       handleToggleCompleted,
-                       updateTodo,
-                       deleteTodo,
-                       addTodo,
+                       onToggleCompleted,
+                       onUpdateTodo,
+                       onDeleteTodo,
+                       onAddTodo,
                        newTodoTitle,
                        setNewTodoTitle,
                        setSortField,
@@ -22,9 +22,9 @@ const TodosPage = ({
 
     return (
         <>
-            <TodoList todoList={todoListState.todoList} onToggleCompleted={handleToggleCompleted}
-                      onUpdateTodo={updateTodo} onDeleteTodo={deleteTodo} isLoading={todoListState.isLoading}/>
-            <TodoForm onAddTodo={addTodo} newTodoTitle={newTodoTitle} setNewTodoTitle={setNewTodoTitle}/>
+            <TodoList todoList={todoListState.todoList} onToggleCompleted={onToggleCompleted}
+                      onUpdateTodo={onUpdateTodo} onDeleteTodo={onDeleteTodo} isLoading={todoListState.isLoading}/>
+            <TodoForm onAddTodo={onAddTodo} newTodoTitle={newTodoTitle} setNewTodoTitle={setNewTodoTitle}/>
             <TodosViewForm
                 setSortField={setSortField}
             setSortDirection={setSortDirection}

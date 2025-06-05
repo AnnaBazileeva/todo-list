@@ -1,6 +1,6 @@
 import styles from './styles/App.module.css'
 import {useState, useReducer, useEffect, useCallback} from "react";
-import  {Route, Routes} from "react-router";
+import  { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import {
     reducer as todosReducer,
     actions as todoActions,
@@ -9,6 +9,8 @@ import {
 
 import TodosPage from './pages/TodosPage'
 import Header from "./shared/Header.jsx";
+import About from "./pages/About.jsx";
+import NotFound from "./pages/NotFound.jsx";
 
 function useDebounce(value, delay = 500) {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -24,20 +26,7 @@ function useDebounce(value, delay = 500) {
     return debouncedValue;
 }
 
-<Routes>
-    <Route
-        path="/"
-        element={<TodosPage/>}
-    />
-    <Route
-        path="/about"
-        element={<h1>About</h1>}
-    />
-        <Route
-            path="/\*"
-            element={<h1>Not Found</h1>}
-        />
-</Routes>
+
 
 function App() {
     const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
@@ -240,6 +229,10 @@ function App() {
                 <Header title="My Todos"/>
             </header>
             <main>
+                <Routes>
+                    <Route
+                        path="/"
+                        element={
                 <TodosPage
                     todoListState={todoListState}
                     onToggleCompleted={handleToggleCompleted}
@@ -253,6 +246,17 @@ function App() {
                     setQueryString={(value) => dispatch({type: todoActions.setQueryString, payload: value})}
                     clearError={() => dispatch({type: todoActions.clearError})}
                 />
+                        }
+                    />
+                <Route
+                    path="/about"
+                    element={<About />}
+                />
+                <Route
+                    path="*"
+                    element={<NotFound />}
+                />
+            </Routes>
             </main>
         </div>
     )
