@@ -48,25 +48,23 @@ const TodosPage = ({
     const navigate = useNavigate();
 
     useEffect(() => {
-        const isInvalidPage =
-            Number.isNaN(currentPage) ||
-            currentPage < 1 ||
-            currentPage > totalPages;
+        if (totalPages > 0) {
+            const isInvalidPage = Number.isNaN(currentPage) || currentPage < 1 || currentPage > totalPages;
 
-        if (isInvalidPage && totalPages > 0) {
-            navigate("/");
+            if (isInvalidPage && totalPages > 0) {
+                navigate("/");
+            }
         }
     }, [currentPage, totalPages, navigate]);
 
-    return (
-        <>
+    return (<>
             <TodoList todoList={currentTodos} onToggleCompleted={onToggleCompleted}
                       onUpdateTodo={onUpdateTodo} onDeleteTodo={onDeleteTodo} isLoading={todoListState.isLoading}/>
             <div className={styles.paginationControls}>
-            <button onClick={handlePreviousPage} disabled={currentPage === 1}>Previous</button>
-            <span>Page {currentPage} of {totalPages || 1}</span>
-            <button onClick={handleNextPage} disabled={currentPage === totalPages || totalPages === 0}>Next</button>
-        </div>
+                <button onClick={handlePreviousPage} disabled={currentPage === 1}>Previous</button>
+                <span>Page {currentPage} of {totalPages || 1}</span>
+                <button onClick={handleNextPage} disabled={currentPage === totalPages || totalPages === 0}>Next</button>
+            </div>
             <TodoForm onAddTodo={onAddTodo} newTodoTitle={newTodoTitle} setNewTodoTitle={setNewTodoTitle}/>
             <TodosViewForm
                 setSortField={setSortField}
@@ -77,9 +75,7 @@ const TodosPage = ({
                     <img src={errorIcon} alt="Error" className={styles.errorIcon}/>
                     <span>{todoListState.errorMessage}</span>
                     <button onClick={clearError}>X</button>
-                </div>
-            )}
-        </>
-    )
+                </div>)}
+        </>)
 }
 export default TodosPage
