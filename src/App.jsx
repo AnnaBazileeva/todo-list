@@ -1,16 +1,16 @@
 import styles from './styles/App.module.css'
 import {useState, useReducer, useEffect, useCallback} from "react";
+import  { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import {
     reducer as todosReducer,
     actions as todoActions,
     initialState as initialTodosState,
 } from './reducers/todos.reducer.js'
 
-import TodoForm from "./TodoList/TodoForm.jsx";
-import TodoList from './TodoList/TodoList.jsx';
-import TodosViewForm from "./features/TodosViewForm.jsx";
-import errorIcon from './assets/error-icon.png';
-import  logo from './assets/note_13650723.png'
+import TodosPage from './pages/TodosPage'
+import Header from "./shared/Header.jsx";
+import About from "./pages/About.jsx";
+import NotFound from "./pages/NotFound.jsx";
 
 function useDebounce(value, delay = 500) {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -25,6 +25,8 @@ function useDebounce(value, delay = 500) {
 
     return debouncedValue;
 }
+
+
 
 function App() {
     const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
@@ -42,12 +44,13 @@ function App() {
         let searchQuery = '';
         if (debouncedQueryString) {
             searchQuery = `&filterByFormula=SEARCH("${debouncedQueryString}",+title)`;
-        } return `https://api.airtable.com/v0/${baseId}/${tableName}?${sortQuery}${searchQuery}`
-        },[ todoListState.sortField, todoListState.sortDirection, debouncedQueryString ])
+        }
+        return `https://api.airtable.com/v0/${baseId}/${tableName}?${sortQuery}${searchQuery}`
+    }, [todoListState.sortField, todoListState.sortDirection, debouncedQueryString])
 
     useEffect(() => {
         const fetchTodos = async () => {
-            dispatch({ type: todoActions.fetchTodos});
+            dispatch({type: todoActions.fetchTodos});
             const fetchUrl = encodeUrl();
 
             const options = {
@@ -71,9 +74,9 @@ function App() {
                     records: data.records,
                 });
             } catch (error) {
-                dispatch({ type: todoActions.setLoadError, error });
+                dispatch({type: todoActions.setLoadError, error});
             } finally {
-                dispatch({ type: todoActions.endRequest });
+                dispatch({type: todoActions.endRequest});
             }
         };
         fetchTodos();
@@ -93,15 +96,15 @@ function App() {
             if (!resp.ok) {
                 throw new Error(`Error: ${resp.statusText}`);
             }
-            dispatch({ type: todoActions.deleteTodo, payload: todoId });
+            dispatch({type: todoActions.deleteTodo, payload: todoId});
         } catch (error) {
             console.error(error);
-            dispatch({ type: todoActions.setLoadError, payload: error.message });
+            dispatch({type: todoActions.setLoadError, payload: error.message});
         }
     };
 
     const addTodo = async (newTodo) => {
-        dispatch({ type: todoActions.startRequest});
+        dispatch({type: todoActions.startRequest});
         const payload = {
             records: [
                 {
@@ -128,7 +131,7 @@ function App() {
                 throw new Error(`Error: ${resp.statusText}`);
             }
 
-            const { records } = await resp.json();
+            const {records} = await resp.json();
             if (!records || !records[0]) {
                 console.error("Invalid response from Airtable: no records returned", records);
                 return;
@@ -150,19 +153,19 @@ function App() {
                 error,
             });
         } finally {
-            dispatch({ type: todoActions.endRequest });
+            dispatch({type: todoActions.endRequest});
         }
     };
 
     const handleToggleCompleted = (todoId) => {
         const todo = todoListState.todoList.find(t => t.id === todoId);
         if (todo) {
-            updateTodo({ ...todo, isCompleted: !todo.isCompleted });
+            updateTodo({...todo, isCompleted: !todo.isCompleted});
         }
     };
 
     const updateTodo = async (editedTodo) => {
-        dispatch({ type: todoActions.startRequest });
+        dispatch({type: todoActions.startRequest});
 
         const originalTodo = todoListState.todoList.find(t => t.id === editedTodo.id);
 
@@ -193,7 +196,7 @@ function App() {
                 throw new Error(`Error: ${resp.statusText}`);
             }
 
-            const { records } = await resp.json();
+            const {records} = await resp.json();
             dispatch({
                 type: todoActions.updateTodo,
                 payload: {
@@ -216,37 +219,47 @@ function App() {
                 },
             });
         } finally {
-            dispatch({ type: todoActions.endRequest });
+            dispatch({type: todoActions.endRequest});
         }
     };
 
     return (
         <div className={styles.container}>
-        <header className={styles.header}>
-            <img src={logo} alt="Logo" className={styles.logo} />
-            <h1>My Todos</h1>
-        </header>
-        <main>
-            <TodoList todoList={todoListState.todoList} onToggleCompleted={handleToggleCompleted} onUpdateTodo={updateTodo} onDeleteTodo={deleteTodo} isLoading={todoListState.isLoading}/>
-            <TodoForm onAddTodo={addTodo} newTodoTitle={newTodoTitle} setNewTodoTitle={(setNewTodoTitle)} />
-            <TodosViewForm
-                sortField={todoListState.sortField}
-                setSortField={(value) => dispatch({ type: todoActions.setSortField, payload: value })}
-                sortDirection={todoListState.sortDirection}
-                setSortDirection={(value) => dispatch({ type: todoActions.setSortDirection, payload: value })}
-                queryString={todoListState.queryString}
-                setQueryString={(value) => dispatch({ type: todoActions.setQueryString, payload: value })}
-            />
-            {todoListState.errorMessage && (<div className={styles.error}>
-                <img src={errorIcon} alt="Error" className={styles.errorIcon}/>
-                <span>{todoListState.errorMessage}</span>
-                    <button onClick={() => dispatch({ type: todoActions.clearError })}>
-                        ✖
-                    </button>
-            </div>
-            )}
-        </main>
+            <header className={styles.header}>
+                <Header title="My Todos"/>
+            </header>
+            <main>
+                <Routes>
+                    <Route
+                        path="/"
+                        element={
+                <TodosPage
+                    todoListState={todoListState}
+                    onToggleCompleted={handleToggleCompleted}
+                    onUpdateTodo={updateTodo}
+                    onDeleteTodo={deleteTodo}
+                    onAddTodo={addTodo}
+                    newTodoTitle={newTodoTitle}
+                    setNewTodoTitle={setNewTodoTitle}
+                    setSortField={(value) => dispatch({type: todoActions.setSortField, payload: value})}
+                    setSortDirection={(value) => dispatch({type: todoActions.setSortDirection, payload: value})}
+                    setQueryString={(value) => dispatch({type: todoActions.setQueryString, payload: value})}
+                    clearError={() => dispatch({type: todoActions.clearError})}
+                />
+                        }
+                    />
+                <Route
+                    path="/about"
+                    element={<About />}
+                />
+                <Route
+                    path="*"
+                    element={<NotFound />}
+                />
+            </Routes>
+            </main>
         </div>
     )
 }
+
 export default App

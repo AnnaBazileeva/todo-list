@@ -103,3 +103,11 @@ form, div {
     width: 24px;
     height: 24px;
 }
+
+.paginationControls{
+    display: flex;
+    alignItems: center;
+    justifyContent: center;
+    gap: 10px;
+    marginTop: 15px;
+}
