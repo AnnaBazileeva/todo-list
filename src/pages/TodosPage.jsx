@@ -60,11 +60,11 @@ const TodosPage = ({
     return (<>
             <TodoList todoList={currentTodos} onToggleCompleted={onToggleCompleted}
                       onUpdateTodo={onUpdateTodo} onDeleteTodo={onDeleteTodo} isLoading={todoListState.isLoading}/>
-            <div className={styles.paginationControls}>
+        {filteredTodoList.length > 0 && (<div className={styles.paginationControls}>
                 <button onClick={handlePreviousPage} disabled={currentPage === 1}>Previous</button>
                 <span>Page {currentPage} of {totalPages || 1}</span>
                 <button onClick={handleNextPage} disabled={currentPage === totalPages || totalPages === 0}>Next</button>
-            </div>
+            </div>)}
             <TodoForm onAddTodo={onAddTodo} newTodoTitle={newTodoTitle} setNewTodoTitle={setNewTodoTitle}/>
             <TodosViewForm
                 setSortField={setSortField}
